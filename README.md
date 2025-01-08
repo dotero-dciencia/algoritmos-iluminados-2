@@ -1,0 +1,1 @@
+Algunos de los algoritmos propuestos durante la lectura del libro ***Algoritmos Iluminados: Segunda Parte*** de Roughgarden.
