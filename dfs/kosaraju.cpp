@@ -3,40 +3,31 @@
 #include <algorithm>
 #include <tuple>
 
-// Devuelve 1 si hay camino desde inicio hasta fin y 0 si no lo hay
-bool dfs(std::vector<std::vector<int>>& grafo, int inicio, int fin, std::vector<bool>& visitados) {
-
-  visitados[inicio] = true;
-
-  for (int i = 0; i < grafo[inicio].size(); i++) {
-    if (!visitados[grafo[inicio][i]]) {
-      if (grafo[inicio][i] == fin) return true;
-      else return dfs(grafo, grafo[inicio][i], fin, visitados);
-    }
-  }
-
-  return false;
-}
-
 int dfsTopo(std::vector<std::vector<int>>& grafo, std::vector<bool>& visitados, std::vector<int>& orden, int actual, int& c){
 
+  // Lo marcamos como visitado
   visitados[actual] = true;
+
+  // Por cada hijo, si no está visitado, llamamos a dfsTopo y el orden de este nodo será el que devuelva dicha función
   for (int i = 0; i < grafo[actual].size(); i++){
     if (!visitados[grafo[actual][i]]){
       c = dfsTopo(grafo, visitados, orden, grafo[actual][i], c);
     }
   }
 
+  // Devolvemos el orden para el siguiente nodo
   orden[actual] = c;
   return --c;
 }
 
 std::vector<int> topoSort(std::vector<std::vector<int>>& grafo){
 
+  // Definimos visitados, orden y c
   std::vector<bool> visitados(grafo.size(), false);
   std::vector<int> orden(grafo.size(), 0);
   int c = grafo.size()-1;
 
+  // Por cada nodo del grafo en orden indiferente, si no está visitado llamamos a dfsTopo
   for (int i = 0; i < grafo.size(); i++){
     if (!visitados[i]){
       c = dfsTopo(grafo, visitados, orden, i, c);
@@ -69,7 +60,10 @@ int kosaraju(std::vector<std::vector<int>>& grafo){
     }
   }
 
+  // Calcular orden topológico inverso usando TOPOSORT
   std::vector<int> orden = topoSort(grafo_rev);
+
+  // Ordenamos según orden topológico
   std::vector<std::tuple<int, int>> nodosOrdenados;
   
   for (int i = 0; i < orden.size(); i++){
@@ -78,6 +72,7 @@ int kosaraju(std::vector<std::vector<int>>& grafo){
   
   std::sort(nodosOrdenados.begin(), nodosOrdenados.end());
 
+  // DFS normal con una modificación: cada nodo que se llegue desde un nodo inicio pertenecerá al mismo componente
   std::vector<bool> visitadosDFS(grafo.size(), false);
   std::vector<int> componente(grafo.size());
   int c = 0;
