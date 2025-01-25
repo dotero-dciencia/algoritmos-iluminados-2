@@ -70,16 +70,45 @@ int bfsCaminoCorto(int inicio, int objetivo, std::vector<std::vector<int>>grafo)
   return distancia[objetivo];
 }
 
+int nComponentesConexos (std::vector<std::vector<int>>grafo){
+  int nComponentesConexos = 0;
+  std::vector<int> componente(grafo.size(), 0);
+  std::vector<bool> visitados(grafo.size(), 0), visitadosAux(grafo.size(), 0);
+  
+  int actual;
+
+  for (int i = 0; i < grafo.size(); i++){
+    if (!visitados[i]){
+      nComponentesConexos++;
+      std::queue<int> cola;
+      visitadosAux.clear();
+      cola.push(i);
+      while(!cola.empty()){
+        actual = cola.front(); cola.pop();
+        visitadosAux[actual] = true;
+        visitados[actual] = true;
+        componente[actual] = nComponentesConexos;
+        for (int j = 0; j < grafo[i].size(); j++){
+          if (!visitadosAux[grafo[i][j]])
+            cola.push(grafo[i][j]);
+        }
+      }
+    }
+  }
+
+  return nComponentesConexos;
+}
+
 int main(){
 
   // Grafo como lista de adyacencia
   std::vector<std::vector<int>> grafo = {
-    {1, 3},
-    {2},
-    {3},
+    {1},
+    {0},
+    {},
     {}
   };
 
-  std::cout << bfsCaminoCorto(0, 2, grafo);
+  std::cout << nComponentesConexos(grafo);
   return 0;
 }
