@@ -1,11 +1,10 @@
 #include <vector>
 #include <tuple>
-#include <queue>
 #include <iostream>
 #include <map>
-#include <algorithm>
+#include <stack>
 
-std::string dijkstra(std::map<std::string, std::map<std::string, int>>& grafo, std::string inicio, std::string objetivo){
+std::string bellmanFord(std::map<std::string, std::map<std::string, int>>& grafo, std::string inicio, std::string objetivo){
   
   std::map<std::string, bool> visitados;
   std::map<std::string, int> distancia;
@@ -19,43 +18,49 @@ std::string dijkstra(std::map<std::string, std::map<std::string, int>>& grafo, s
 
   distancia[inicio] = 0;
   anterior[inicio] = "0";
-  std::priority_queue<
-        std::tuple<int, std::string>, 
-        std::vector<std::tuple<int, std::string>>, 
-        std::greater<std::tuple<int, std::string>>
-    > cola;
-  cola.push({0, inicio});
 
   std::string actual;
   std::map<std::string, int> vecinos;
-  while(!cola.empty()){
-    actual = std::get<1>(cola.top()); cola.pop(); visitados[actual] = true;
-    vecinos = grafo[actual];
 
-    for (const auto& nodo : vecinos){
-      if (distancia[actual] + nodo.second < distancia[nodo.first]){
-        distancia[nodo.first] = distancia[actual] + nodo.second;
-        anterior[nodo.first] = actual;
-      }
-      if (!visitados[nodo.first]){
-        cola.push({distancia[nodo.first], nodo.first});
+  for (int i = 0; i < grafo.size() - 1; i++){
+    for (const auto& nodo : grafo){
+      for (const auto& vecino : nodo.second){
+        if (distancia[nodo.first] + vecino.second < distancia[vecino.first]){
+          distancia[vecino.first] = distancia[nodo.first] + vecino.second;
+          anterior[vecino.first] = nodo.first;
+        }
       }
     }
   }
 
+  for (const auto& nodo : grafo){
+      for (const auto& vecino : nodo.second){
+        if (distancia[nodo.first] + vecino.second < distancia[vecino.first]){
+          return("Ciclos");
+        }
+      }
+    }
+
   // Sacar el camino
 
-  std::string camino = "", nodoCamino = objetivo;
-  camino += objetivo;
+  std::stack<std::string> camino;
+  std::string nodoCamino = objetivo;
 
   for (int i = 0; i < grafo.size(); i++){
+    camino.push(nodoCamino);
     nodoCamino = anterior[nodoCamino];
-    if (nodoCamino == "0") break; 
-    camino += nodoCamino;
+    if (nodoCamino == "0") break;
+    if (nodoCamino == "-1") return "NO_HAY_CAMINO";
   }
+  
+  std::string solucion = "";
+  while(!camino.empty()){
+    solucion += camino.top(); 
+    camino.pop();
+    solucion += " ";
+  } 
 
-  std::reverse(camino.begin(), camino.end());
-  return camino;
+  return solucion;
 }
 
 int main() {
@@ -75,7 +80,7 @@ int main() {
     {"D", {{"B", 4}, {"C", 5}}}
   };
 
-  std::cout << dijkstra(grafo, "A", "D") << std::endl;
+  std::cout << bellmanFord(grafo, "A", "D") << std::endl;
 
   return 0;
 }
